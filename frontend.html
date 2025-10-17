@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .nav button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+
+        .nav button:hover {
+            background: #e9ecef;
+        }
+
+        .nav button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .content {
+            padding: 30px;
+            min-height: 500px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .product-card .price {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .order-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .order-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+        }
+
+        .order-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.confirmed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status.shipped {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.delivered {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛍️ E-commerce Store</h1>
+            <p>Shop, Order, and Track Your Purchases</p>
+        </div>
+
+        <div class="nav">
+            <button class="nav-btn active" onclick="showSection('products')">📦 Products</button>
+            <button class="nav-btn" onclick="showSection('orders')">🛒 Create Order</button>
+            <button class="nav-btn" onclick="showSection('tracking')">📋 Track Orders</button>
+        </div>
+
+        <div class="content">
+            <!-- Products Section -->
+            <div id="products" class="section active">
+                <h2>Our Products</h2>
+                <div id="products-container" class="loading">
+                    Loading products...
+                </div>
+            </div>
+
+            <!-- Create Order Section -->
+            <div id="orders" class="section">
+                <h2>Create New Order</h2>
+                <div id="order-message"></div>
+                <form id="order-form" class="order-form">
+                    <div class="form-group">
+                        <label for="customerName">Customer Name:</label>
+                        <input type="text" id="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productSelect">Select Product:</label>
+                        <select id="productSelect" required>
+                            <option value="">Choose a product...</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Create Order</button>
+                </form>
+            </div>
+
+            <!-- Track Orders Section -->
+            <div id="tracking" class="section">
+                <h2>Track Your Orders</h2>
+                <div class="form-group">
+                    <label for="orderId">Order ID:</label>
+                    <input type="text" id="orderId" placeholder="Enter order ID to track">
+                    <button onclick="trackOrder()" class="btn" style="margin-top: 10px;">Track Order</button>
+                </div>
+                <div id="order-details"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let products = [];
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Load data when switching to tracking
+            if (sectionId === 'tracking') {
+                loadOrderTracking();
+            }
+        }
+
+        // Load products
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/products`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const responseData = await response.json();
+                products = responseData.data || responseData; // Handle both API formats
+                
+                displayProducts();
+                populateProductSelect();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('products-container').innerHTML = 
+                    '<div class="error">Error loading products. Make sure the API server is running on port 5000.<br>Error: ' + error.message + '</div>';
+            }
+        }
+
+        // Display products
+        function displayProducts() {
+            const container = document.getElementById('products-container');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<div class="error">No products available.</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="product-grid">
+                    ${products.map(product => `
+                        <div class="product-card">
+                            <h3>${product.name}</h3>
+                            <div class="price">$${product.price.toLocaleString()}</div>
+                            <p>Product ID: ${product.id}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Populate product select dropdown
+        function populateProductSelect() {
+            const select = document.getElementById('productSelect');
+            select.innerHTML = '<option value="">Choose a product...</option>';
+            
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = `${product.name} - $${product.price.toLocaleString()}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Create order
+        document.getElementById('order-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const customerName = document.getElementById('customerName').value;
+            const productId = document.getElementById('productSelect').value;
+            
+            if (!customerName || !productId) {
+                showMessage('Please fill in all fields.', 'error');
+                return;
+            }
+
+            // Find the selected product to get its price
+            const selectedProduct = products.find(p => p.id === productId);
+            if (!selectedProduct) {
+                showMessage('Selected product not found.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        customerInfo: {
+                            name: customerName,
+                            email: `${customerName.toLowerCase().replace(' ', '')}@example.com`,
+                            phone: "+1234567890",
+                            shippingAddress: {
+                                street: "123 Main St",
+                                city: "New York",
+                                state: "NY",
+                                zipCode: "10001",
+                                country: "USA"
+                            }
+                        },
+                        items: [{
+                            productId: productId,
+                            quantity: 1
+                        }]
+                    })
+                });
+
+                if (response.ok) {
+                    const orderResponse = await response.json();
+                    const order = orderResponse.data || orderResponse;
+                    showMessage(`Order created successfully! Order ID: ${order.id}`, 'success');
+                    document.getElementById('order-form').reset();
+                } else {
+                    const error = await response.json();
+                    showMessage(`Error: ${error.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage('Error creating order. Make sure the API server is running.', 'error');
+            }
+        });
+
+        // Track order
+        async function trackOrder() {
+            const orderId = document.getElementById('orderId').value;
+            
+            if (!orderId) {
+                showOrderDetails('Please enter an order ID.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/orders/${orderId}`);
+                
+                if (response.ok) {
+                    const orderResponse = await response.json();
+                    const order = orderResponse.data || orderResponse;
+                    displayOrderDetails(order);
+                } else {
+                    const error = await response.json();
+                    showOrderDetails(`Error: ${error.message}`, 'error');
+                }
+            } catch (error) {
+                showOrderDetails('Error tracking order. Make sure the API server is running.', 'error');
+            }
+        }
+
+        // Display order details
+        function displayOrderDetails(order) {
+            const container = document.getElementById('order-details');
+            
+            // Handle both simple and comprehensive API formats
+            const customerName = order.customerInfo ? order.customerInfo.name : order.customerName;
+            const productName = order.items ? order.items[0].productId : order.product.name;
+            const productPrice = order.items ? order.items[0].price : order.product.price;
+            const totalAmount = order.totalAmount || productPrice;
+            
+            container.innerHTML = `
+                <div class="order-card">
+                    <h4>Order #${order.id}</h4>
+                    <p><strong>Customer:</strong> ${customerName}</p>
+                    <p><strong>Product:</strong> ${productName}</p>
+                    <p><strong>Price:</strong> $${productPrice.toLocaleString()}</p>
+                    <p><strong>Total Amount:</strong> $${totalAmount.toLocaleString()}</p>
+                    <p><strong>Status:</strong> <span class="status ${order.status.toLowerCase()}">${order.status}</span></p>
+                    <p><strong>Order Date:</strong> ${new Date(order.createdAt || Date.now()).toLocaleDateString()}</p>
+                    ${order.trackingNumber ? `<p><strong>Tracking Number:</strong> ${order.trackingNumber}</p>` : ''}
+                </div>
+            `;
+        }
+
+        // Show order details with message
+        function showOrderDetails(message, type) {
+            document.getElementById('order-details').innerHTML = 
+                `<div class="${type}">${message}</div>`;
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const container = document.getElementById('order-message');
+            container.innerHTML = `<div class="${type}">${message}</div>`;
+            
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // Load order tracking (placeholder for future enhancement)
+        function loadOrderTracking() {
+            // This could be enhanced to show recent orders or order history
+            document.getElementById('order-details').innerHTML = 
+                '<p>Enter an order ID above to track your order status.</p>';
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+        });
+    </script>
+</body>
+</html>
